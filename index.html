@@ -245,13 +245,14 @@
   }
   .day-shift {
     display: grid;
-    grid-template-columns: 80px 1fr 1fr 90px;
+    grid-template-columns: 92px 1.2fr minmax(120px, 1fr) minmax(120px, 1fr);
     gap: 8px;
     align-items: center;
     padding: 6px 0;
     border-top: 1px dashed rgba(75, 46, 131, 0.08);
   }
   .day-shift:first-of-type { border-top: 0; }
+  .day-shift select, .day-shift input[type="time"] { width: 100%; min-width: 0; }
   .day-shift .dn { font-weight: 700; color: var(--sbe-purple); font-family: 'Century Gothic', sans-serif; }
 
   /* ---------- Buttons ---------- */
@@ -448,9 +449,133 @@
 
   @media (max-width: 760px) {
     .week { grid-template-columns: repeat(2, 1fr); }
-    .day-shift { grid-template-columns: 70px 1fr 1fr 80px; }
+    .day-shift { grid-template-columns: 1fr 1fr; gap: 6px 10px; }
+    .day-shift .dn { grid-column: 1 / -1; }
+    .day-shift select { grid-column: 1 / -1; }
     header.brand { flex-direction: column; align-items: flex-start; }
+    .a11y-swatches { gap: 8px; }
   }
+
+  /* ====================================================================
+     Reading & accessibility options
+     Warm reading backgrounds based on Rello & Bigham (2017),
+     "Good Background Colors for Readers", ASSETS '17.
+     Warm tones improve readability; cool tones are kept for UI chrome only.
+     ==================================================================== */
+
+  /* Dyslexia-friendly font (loads if available; graceful system fallback) */
+  @font-face {
+    font-family: 'OpenDyslexic';
+    src: url('https://cdn.jsdelivr.net/npm/@fontsource/opendyslexic/files/opendyslexic-latin-400-normal.woff2') format('woff2');
+    font-weight: 400; font-style: normal; font-display: swap;
+  }
+  @font-face {
+    font-family: 'OpenDyslexic';
+    src: url('https://cdn.jsdelivr.net/npm/@fontsource/opendyslexic/files/opendyslexic-latin-700-normal.woff2') format('woff2');
+    font-weight: 700; font-style: normal; font-display: swap;
+  }
+
+  /* The reading-options bar */
+  .a11y { margin: 0 0 22px; }
+  .a11y > summary {
+    list-style: none;
+    cursor: pointer;
+    display: inline-flex; align-items: center; gap: 8px;
+    background: #fff;
+    border: 1px solid rgba(75, 46, 131, 0.18);
+    border-radius: 999px;
+    padding: 8px 16px;
+    font-weight: 600;
+    color: var(--sbe-purple);
+    box-shadow: var(--thin-shadow);
+  }
+  .a11y > summary::-webkit-details-marker { display: none; }
+  .a11y > summary:hover { box-shadow: var(--soft-shadow); }
+  .a11y[open] > summary { margin-bottom: 14px; }
+  .a11y-panel {
+    background: #fff;
+    border: 1px solid rgba(75, 46, 131, 0.12);
+    border-radius: var(--radius);
+    padding: 20px 22px;
+    box-shadow: var(--soft-shadow);
+    max-width: 720px;
+  }
+  .a11y-panel h3 { margin-top: 0; }
+  .a11y-group { padding: 12px 0; border-top: 1px dashed rgba(75, 46, 131, 0.12); }
+  .a11y-group:first-of-type { border-top: 0; padding-top: 4px; }
+  .a11y-group > .lbl { font-weight: 700; color: var(--deep-mauve); display: block; margin-bottom: 8px; font-size: 0.95rem; }
+  .a11y-swatches { display: flex; flex-wrap: wrap; gap: 10px; }
+  .swatch {
+    display: inline-flex; flex-direction: column; align-items: center; gap: 4px;
+    cursor: pointer; border: 0; background: none; padding: 0;
+    font-size: 0.72rem; color: var(--charcoal); width: 64px;
+  }
+  .swatch .chip {
+    width: 56px; height: 38px; border-radius: 10px;
+    border: 2px solid rgba(75, 46, 131, 0.25);
+    box-shadow: var(--thin-shadow);
+  }
+  .swatch[aria-pressed="true"] .chip {
+    border-color: var(--sbe-purple);
+    outline: 2px solid var(--sbe-purple); outline-offset: 1px;
+  }
+  .swatch[aria-pressed="true"] { font-weight: 700; color: var(--sbe-purple); }
+  .a11y-tog { display: flex; align-items: center; gap: 10px; font-weight: 600; color: var(--ink); cursor: pointer; }
+  .a11y-tog input { width: 18px; height: 18px; accent-color: var(--sbe-purple); }
+  .a11y-tog .note { display: block; font-weight: 400; font-size: 0.85rem; color: var(--deep-mauve); }
+  .a11y-reset {
+    margin-top: 6px; background: none; border: 0; cursor: pointer;
+    color: var(--deep-mauve); text-decoration: underline; font: inherit; padding: 0;
+  }
+
+  /* ---- Warm reading-background themes (applied to <html data-theme>) ---- */
+  html[data-theme="yellow"]    { --read-bg: #F8FD89; }
+  html[data-theme="turquoise"] { --read-bg: #A5F7E1; }
+  html[data-theme="peach"]     { --read-bg: #EDD1B0; }
+  html[data-theme="orange"]    { --read-bg: #EDDD6E; }
+  html[data-theme="red"]       { --read-bg: #E0A6AA; }
+
+  html[data-theme] body { background: var(--read-bg); }
+  /* Reading surfaces take the warm tone; black text keeps WCAG AAA contrast */
+  html[data-theme] .card,
+  html[data-theme] .acc-body,
+  html[data-theme] .a11y-panel,
+  html[data-theme] .a11y > summary,
+  html[data-theme] .empty {
+    background: var(--read-bg);
+    border-color: rgba(0, 0, 0, 0.22);
+  }
+  html[data-theme] body,
+  html[data-theme] p,
+  html[data-theme] .lede,
+  html[data-theme] label.field span,
+  html[data-theme] .help,
+  html[data-theme] .a11y-tog,
+  html[data-theme] .a11y-tog .note,
+  html[data-theme] .swatch { color: #111; }
+  /* Inputs stay white so fields read clearly on the warm page */
+  html[data-theme] input[type="time"],
+  html[data-theme] input[type="number"],
+  html[data-theme] input[type="text"],
+  html[data-theme] select { background: #fff; color: #111; }
+
+  /* ---- Dyslexia-friendly font (applied to <html data-font="dyslexic">) ---- */
+  html[data-font="dyslexic"] body,
+  html[data-font="dyslexic"] input,
+  html[data-font="dyslexic"] select,
+  html[data-font="dyslexic"] button,
+  html[data-font="dyslexic"] h1,
+  html[data-font="dyslexic"] h2,
+  html[data-font="dyslexic"] h3,
+  html[data-font="dyslexic"] h4 {
+    font-family: 'OpenDyslexic', 'Comic Sans MS', 'Trebuchet MS', Verdana, Tahoma, sans-serif !important;
+    letter-spacing: 0.01em;
+  }
+
+  /* ---- Increased spacing (applied to <html data-spacing="loose">) ---- */
+  html[data-spacing="loose"] body { line-height: 1.9; letter-spacing: 0.04em; word-spacing: 0.12em; }
+  html[data-spacing="loose"] p { margin-bottom: 1.15em; }
+  html[data-spacing="loose"] .lede { line-height: 1.9; }
 </style>
 </head>
 <body>
@@ -466,6 +591,43 @@
     </div>
     <a class="top-link" href="https://www.studybeyondenglish.com" target="_blank" rel="noopener">studybeyondenglish.com</a>
   </header>
+
+  <!-- ---------- Reading & accessibility options ---------- -->
+  <details class="a11y" id="a11yPanel">
+    <summary aria-label="Open reading and accessibility options">🌈 Reading &amp; accessibility options</summary>
+    <div class="a11y-panel">
+      <h3>Make this easier to read</h3>
+      <p class="help">Choose a calm background colour, a clearer font, or more space between the words. These options follow dyslexia readability research, and your choices are remembered on this device.</p>
+
+      <div class="a11y-group">
+        <span class="lbl">Background colour</span>
+        <div class="a11y-swatches" id="themeSwatches" role="group" aria-label="Background colour">
+          <button class="swatch" data-theme="" aria-pressed="true"><span class="chip" style="background:#FFF7F0"></span>Default</button>
+          <button class="swatch" data-theme="yellow" aria-pressed="false"><span class="chip" style="background:#F8FD89"></span>Yellow</button>
+          <button class="swatch" data-theme="turquoise" aria-pressed="false"><span class="chip" style="background:#A5F7E1"></span>Turquoise</button>
+          <button class="swatch" data-theme="peach" aria-pressed="false"><span class="chip" style="background:#EDD1B0"></span>Peach</button>
+          <button class="swatch" data-theme="orange" aria-pressed="false"><span class="chip" style="background:#EDDD6E"></span>Orange</button>
+          <button class="swatch" data-theme="red" aria-pressed="false"><span class="chip" style="background:#E0A6AA"></span>Soft red</button>
+        </div>
+      </div>
+
+      <div class="a11y-group">
+        <label class="a11y-tog"><input type="checkbox" id="togFont">
+          <span>Dyslexia-friendly font<span class="note">Rounder letters with clearer shapes.</span></span>
+        </label>
+      </div>
+
+      <div class="a11y-group">
+        <label class="a11y-tog"><input type="checkbox" id="togSpacing">
+          <span>More spacing<span class="note">Extra space between lines, words and letters.</span></span>
+        </label>
+      </div>
+
+      <div class="a11y-group">
+        <button class="a11y-reset" id="a11yReset" type="button">Reset reading options</button>
+      </div>
+    </div>
+  </details>
 
   <section class="hero">
     <h1>A weekly timetable, built around your life.</h1>
@@ -654,8 +816,53 @@
 <script>
 /* ===================================================================
    Find Your Space — Adult timetable freebie
-   Single-file vanilla JS; no build step; no analytics; no storage.
+   Single-file vanilla JS; no build step; no analytics.
    =================================================================== */
+
+/* ---------- Reading & accessibility options ---------- */
+(function a11y(){
+  const root = document.documentElement;
+  const KEY = { theme: "fys-theme", font: "fys-font", spacing: "fys-spacing" };
+  const get = k => { try { return localStorage.getItem(k); } catch(e){ return null; } };
+  const set = (k,v) => { try { v ? localStorage.setItem(k,v) : localStorage.removeItem(k); } catch(e){} };
+
+  function applyTheme(t){
+    if (t) root.setAttribute("data-theme", t); else root.removeAttribute("data-theme");
+    document.querySelectorAll("#themeSwatches .swatch").forEach(b =>
+      b.setAttribute("aria-pressed", String((b.dataset.theme || "") === (t || ""))));
+  }
+  function applyFont(on){
+    if (on) root.setAttribute("data-font","dyslexic"); else root.removeAttribute("data-font");
+    const c = document.getElementById("togFont"); if (c) c.checked = !!on;
+  }
+  function applySpacing(on){
+    if (on) root.setAttribute("data-spacing","loose"); else root.removeAttribute("data-spacing");
+    const c = document.getElementById("togSpacing"); if (c) c.checked = !!on;
+  }
+
+  // Restore saved preferences
+  applyTheme(get(KEY.theme) || "");
+  applyFont(get(KEY.font) === "1");
+  applySpacing(get(KEY.spacing) === "1");
+
+  document.addEventListener("DOMContentLoaded", () => {
+    const sw = document.getElementById("themeSwatches");
+    if (sw) sw.addEventListener("click", e => {
+      const b = e.target.closest(".swatch"); if (!b) return;
+      const t = b.dataset.theme || "";
+      applyTheme(t); set(KEY.theme, t);
+    });
+    const tf = document.getElementById("togFont");
+    if (tf) tf.addEventListener("change", () => { applyFont(tf.checked); set(KEY.font, tf.checked ? "1" : ""); });
+    const ts = document.getElementById("togSpacing");
+    if (ts) ts.addEventListener("change", () => { applySpacing(ts.checked); set(KEY.spacing, ts.checked ? "1" : ""); });
+    const rs = document.getElementById("a11yReset");
+    if (rs) rs.addEventListener("click", () => {
+      applyTheme(""); applyFont(false); applySpacing(false);
+      set(KEY.theme,""); set(KEY.font,""); set(KEY.spacing,"");
+    });
+  });
+})();
 
 const DAYS = ["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"];
 const SHORT = ["Sun","Mon","Tue","Wed","Thu","Fri","Sat"];
